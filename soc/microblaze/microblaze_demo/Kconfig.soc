@@ -1,0 +1,9 @@
+# Copyright 2022 Advanced Micro Devices, Inc. (AMD)
+# SPDX-License-Identifier: Apache-2.0
+
+
+config SOC_XLNX_MICROBLAZE_DEMO
+	bool "Xilinx MicroBlaze Demo SoC Configuration"
+	select MICROBLAZE
+	select XLNX_INTC
+	select XLNX_TMRCTR

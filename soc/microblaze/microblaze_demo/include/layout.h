@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2022 Advanced Micro Devices, Inc. (AMD)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
+#ifndef ZEPHYR_SOC_MICROBLAZE_SOC_INCLUDE_LAYOUT_H_
+#define ZEPHYR_SOC_MICROBLAZE_SOC_INCLUDE_LAYOUT_H_
+
+#define _RESET_VECTOR 0x00000000
+#define _USER_VECTOR  (_RESET_VECTOR + 0x8)
+#define _INTR_VECTOR  (_RESET_VECTOR + 0x10)
+#define _EXC_VECTOR   (_RESET_VECTOR + 0x20)
+
+#define _LAYOUT_BRAM0_LOC  0xFFF00000
+#define _LAYOUT_BRAM0_SIZE 32K
+#define _LAYOUT_BRAM1_LOC  0xFFF08000
+#define _LAYOUT_BRAM1_SIZE 32K
+#define _LAYOUT_DDR_LOC	   0x0
+#define _LAYOUT_DDR_SIZE   2048M
+
+#endif /* ZEPHYR_SOC_MICROBLAZE_SOC_INCLUDE_LAYOUT_H_ */
