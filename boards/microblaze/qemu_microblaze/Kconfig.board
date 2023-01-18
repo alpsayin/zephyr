@@ -1,0 +1,8 @@
+# Copyright 2022 Advanced Micro Devices, Inc. (AMD)
+# SPDX-License-Identifier: Apache-2.0
+
+
+config BOARD_QEMU_MICROBLAZE
+	bool "MicroBlaze Demo QEMU Emulator"
+	depends on SOC_XLNX_MICROBLAZE_DEMO
+	select QEMU_TARGET

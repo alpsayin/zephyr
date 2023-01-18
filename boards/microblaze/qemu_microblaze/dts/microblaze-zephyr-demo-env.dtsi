@@ -1,0 +1,75 @@
+
+/*
+ * Copyright (c) 2022 Advanced Micro Devices, Inc. (AMD)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include "microblaze/memmap.dtsh"
+#include "microblaze/cpu.dtsh"
+
+&amba {
+	amba_main: amba_main {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		#priority-cells = <1>;
+		compatible = "simple-bus";
+		interrupt-parent = <&intc0>;
+
+		bram0: ram@MM_BRAM_0 {
+			compatible = "qemu:memory-region";
+			reg = <0x0 MM_BRAM_0 0x0 MM_BRAM_0_SIZE 0x1>;
+			qemu,ram = <1>;
+			label = "RAM";
+		};
+
+		bram1: rom@MM_BRAM_1 {
+			compatible = "qemu:memory-region";
+			reg = <0x0 MM_BRAM_1 0x0 MM_BRAM_1_SIZE 0x1>;
+			qemu,ram = <1>;
+			label = "ROM";
+		};
+
+		bram2: rom2@MM_BRAM_2 {
+			compatible = "qemu:memory-region";
+			reg = <0x0 MM_BRAM_2 0x0 MM_BRAM_2_SIZE 0x1>;
+			qemu,ram = <1>;
+			label = "FEATURE_ROM";
+		};
+
+		main_ram@MM_RAM {
+			compatible = "qemu:memory-region";
+			reg = <0x0 MM_RAM 0x0 MM_RAM_SIZE 0x1>;
+			qemu,ram = <1>;
+		};
+
+		intc0: interrupt-controller@MM_INTC {
+			compatible = "xlnx.xps-intc";
+			reg = <0x0 MM_INTC 0x0 MM_INTC_SIZE 0x1>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			interrupts-extended = <&cpu_0 0>;
+			kind-of-intr = <0x0>;
+			interrupt-names = "Outputs";
+			label = "intc0";
+		};
+
+		xlnx_timer@MM_TIMER_0 {
+			compatible = "xlnx.xps-timer";
+			reg = <0x0 MM_TIMER_0 0x0 MM_TIMER_0_SIZE 0x1>;
+			interrupts = <MM_TIMER_0_INT 2>;
+			clock-frequency = <50000000>;
+		};
+
+		uart0@MM_UARTLITE_0 {
+			compatible = "xlnx,xps-uartlite";
+			reg = <0x0 MM_UARTLITE_0 0x0 MM_UARTLITE_0_SIZE 0x1>;
+			interrupts = <MM_UARTLITE_0_INT 2>;
+			chardev = "serial0";
+		};
+	};
+};
+
+&cpus {
+	CREATE_MB(cpu,0, &amba_main, 0x0, "CPU0", 0x0);
+};

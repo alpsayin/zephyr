@@ -1,0 +1,30 @@
+
+/*
+ * Copyright (c) 2022 Advanced Micro Devices, Inc. (AMD)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
+#define MM_RAM							0x0
+#define MM_RAM_SIZE					0x80000000
+
+#define MM_BRAM_0						0xfff00000
+#define MM_BRAM_0_SIZE			0x8000
+
+#define MM_BRAM_1						0xfff08000
+#define MM_BRAM_1_SIZE			0x8000
+
+#define MM_BRAM_2						0xfe03d000
+#define MM_BRAM_2_SIZE			0x1000
+
+#define MM_UARTLITE_0				0xfe020000
+#define MM_UARTLITE_0_SIZE	0x10000
+#define MM_UARTLITE_0_INT		14
+
+#define MM_INTC							0xfe010000
+#define MM_INTC_SIZE				0x10000
+
+#define MM_TIMER_0					0xfe00c000
+#define MM_TIMER_0_SIZE			0x1000
+#define MM_TIMER_0_INT			15

@@ -1,0 +1,10 @@
+# Copyright 2022 Advanced Micro Devices, Inc. (AMD)
+# SPDX-License-Identifier: Apache-2.0
+
+
+if BOARD_QEMU_MICROBLAZE
+
+config BOARD
+	default "qemu_microblaze"
+
+endif # BOARD_QEMU_MICROBLAZE
