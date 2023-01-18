@@ -1,0 +1,85 @@
+# Copyright 2022 Advanced Micro Devices, Inc. (AMD)
+# SPDX-License-Identifier: Apache-2.0
+
+
+menu "Cache Options"
+	depends on MICROBLAZE
+
+config DCACHE_USE_WRITEBACK_SUPPORTED
+	def_bool y
+	help
+		This needs to be set by user because it's difficult to make Kconfig or precompiler
+		make this decision based on CPU_VERSION. This config flag indicates the lack of
+		DCACHE_USE_WRITEBACK capability with MicroBlaze CPUs with version less than 7.2.0.
+
+
+config MICROBLAZE_DCACHE_USE_WRITEBACK
+	def_bool y
+	depends on DCACHE_USE_WRITEBACK_SUPPORTED
+	help
+		This should come from dts. Default value is copied manually from xparameters
+		If this isn't defined in your xparameters you're likely using a MicroBlaze
+		with cpu version less than 7.2.0. If so, unset DCACHE_USE_WRITEBACK_SUPPORTED
+		in your SoC Kconfig or defconfigs.
+
+config MICROBLAZE_DCACHE_HIGHADDR
+	def_hex 0x7FFFFFFF
+	help
+		This should come from dts. Default value is copied manually from xparameters
+config MICROBLAZE_DCACHE_BASEADDR
+	def_hex 0x00000000
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_ALLOW_DCACHE_WR
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config CONFIG_MICROBLAZE_USE_DCACHE
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config CONFIG_MICROBLAZE_USE_ICACHE
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_ALLOW_ICACHE_WR
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_INTERCONNECT
+	def_int 2
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_DCACHE_BYTE_SIZE
+	def_int 32768
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_ICACHE_BYTE_SIZE
+	def_int 32768
+	help
+		This should come from dts. Default value is copied manually from xparameters
+		Extra note: XPAR_ICACHE_BYTE_SIZE doesn't exist but XPAR_MICROBLAZE_CACHE_BYTE_SIZE exists.
+
+config MICROBLAZE_ICACHE_LINE_LEN
+	def_int 16
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_DCACHE_LINE_LEN
+	def_int 16
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_EXT_CACHE_LINE_LEN
+	def_int 16
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+endmenu

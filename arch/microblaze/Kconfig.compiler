@@ -1,0 +1,31 @@
+# Copyright 2022 Advanced Micro Devices, Inc. (AMD)
+# SPDX-License-Identifier: Apache-2.0
+
+
+menu "Compiler and Build Options"
+	depends on MICROBLAZE
+
+config DATA_IS_TEXT_RELATIVE
+	bool "Assume data & text segment distance is static"
+	default y
+	help
+		Assume that the displacement between the text and data segments is fixed at
+		static link time. This allows data to be referenced by offset from start of
+		text address instead of GOT since PC-relative addressing is not supported.
+		Injects -mpic-data-is-text-relative
+
+config GENERATE_EXTENDED_DISASSEMBLY
+	bool "Generate a listing file that contains both the dissassembly & map"
+	default y
+	help
+		Also see KConfig option OUTPUT_DISASSEMBLE_ALL
+
+config DEBUG_NO_OPT
+	bool "Disable optimisations for debugging"
+	default y
+	select DEBUG
+	help
+		Injects -fno-inline and -fno-optimize-sibling-calls if set,
+		otherwise injects -fomit-frame-pointer. Also force selects DEBUG
+
+endmenu

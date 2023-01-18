@@ -1,0 +1,64 @@
+# Copyright 2022 Advanced Micro Devices, Inc. (AMD)
+# SPDX-License-Identifier: Apache-2.0
+
+
+menu "HW Feature Options"
+	depends on MICROBLAZE
+
+config MICROBLAZE_USE_FPU
+	def_bool n
+	select CPU_HAS_FPU if MICROBLAZE_USE_FPU
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_USE_MSR_INSTR
+	prompt "Use msrset & msrclr instructions"
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config HAS_BARREL_SHIFT_INSTR
+	prompt "Use barrel shift instructions"
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config HAS_PATTERN_COMPARE_INSTR
+	prompt "Use pattern compare instructions"
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config HAS_DIV_INSTR
+	prompt "Use division instructions"
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config HAS_MUL_INSTR
+	prompt "Use multiplication instructions"
+	def_bool y
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+config HAS_MULHI_INSTR
+	prompt "Use mulhi for multiplication of higher bits"
+	def_bool y
+	depends on HAS_MUL_INSTR
+	help
+		Use multiply high instructions for high part of 32x32 multiply.
+		This should come from dts. Default value is copied manually from xparameters
+
+config USE_HARDWARE_FLOAT_INSTR
+	def_bool n
+	depends on CPU_HAS_FPU
+	help
+		Use hardware floating-point instructions.
+		This should come from dts. Default value is copied manually from xparameters
+
+config MICROBLAZE_USE_STACK_PROTECTION
+	def_bool n
+	help
+		This should come from dts. Default value is copied manually from xparameters
+
+endmenu
