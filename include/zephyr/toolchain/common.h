@@ -118,7 +118,8 @@
     #define PERFOPT_ALIGN .align  4
 
   #elif defined(CONFIG_RISCV) ||  defined(CONFIG_XTENSA) || \
-	  defined(CONFIG_MIPS) || defined(CONFIG_RX)
+	  defined(CONFIG_MIPS) || defined(CONFIG_RX) || \
+    defined(CONFIG_MICROBLAZE)
     #define PERFOPT_ALIGN .balign 4
 
   #elif defined(CONFIG_ARCH_POSIX)

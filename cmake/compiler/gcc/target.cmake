@@ -80,6 +80,8 @@ elseif("${ARCH}" STREQUAL "xtensa")
   include(${CMAKE_CURRENT_LIST_DIR}/target_xtensa.cmake)
 elseif("${ARCH}" STREQUAL "rx")
   include(${CMAKE_CURRENT_LIST_DIR}/target_rx.cmake)
+elseif("${ARCH}" STREQUAL "microblaze")
+  include(${CMAKE_CURRENT_LIST_DIR}/target_microblaze.cmake)
 endif()
 
 if(SYSROOT_DIR)
