@@ -1,0 +1,17 @@
+# Copyright 2022 Advanced Micro Devices, Inc. (AMD)
+# SPDX-License-Identifier: Apache-2.0
+
+description: Xilinx AXI TMRCTR timer counter
+
+compatible: "xlnx,tmrctr"
+
+include: base.yaml
+
+properties:
+  reg:
+    required: true
+
+  clock-frequency:
+    type: int
+    required: true
+    description: Clock frequency information for Timer operation
