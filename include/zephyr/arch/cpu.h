@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2022 Advanced Micro Devices, Inc. (AMD)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /* cpu.h - automatically selects the correct arch.h file to include */
 
 /*
@@ -27,6 +33,8 @@
 #include <zephyr/arch/xtensa/arch.h>
 #elif defined(CONFIG_MIPS)
 #include <zephyr/arch/mips/arch.h>
+#elif defined(CONFIG_MICROBLAZE)
+#include <zephyr/arch/microblaze/arch.h>
 #elif defined(CONFIG_ARCH_POSIX)
 #include <zephyr/arch/posix/arch.h>
 #elif defined(CONFIG_SPARC)
