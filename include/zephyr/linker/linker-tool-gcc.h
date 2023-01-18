@@ -53,6 +53,8 @@
 	/* Not needed */
 #elif defined(CONFIG_MIPS)
 	OUTPUT_ARCH("mips")
+#elif defined(CONFIG_MICROBLAZE)
+	OUTPUT_FORMAT("elf32-microblaze")
 #elif defined(CONFIG_ARCH_POSIX)
 	/* Not needed */
 #elif defined(CONFIG_SPARC)
