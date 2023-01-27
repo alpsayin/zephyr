@@ -242,6 +242,12 @@ static inline void trigger_irq(int irq)
 		_sw_isr_table[irq - CONFIG_GEN_IRQ_START_VECTOR].arg);
 }
 
+#elif defined(CONFIG_MICROBLAZE)
+static inline void trigger_irq(int irq)
+{
+	EMULATE_IRQ(irq);
+}
+
 #else
 #define NO_TRIGGER_FROM_SW
 #endif
