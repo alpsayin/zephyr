@@ -25,6 +25,9 @@ ARCHS = {
     "arm64" : {
         "kconfig": "CONFIG_ARM64",
     },
+    "microblaze" : {
+        "kconfig": "CONFIG_MICROBLAZE",
+    },
     "mips" : {
         "kconfig": "CONFIG_MIPS",
     },
