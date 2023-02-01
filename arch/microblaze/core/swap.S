@@ -22,7 +22,8 @@
 
 /* unsigned int arch_swap(unsigned int key)
  *
- * Always called with interrupts locked
+ * Always called with interrupts locked.
+ * Must always be called with a delayed branch instruction!
  */
 SECTION_FUNC(exception.other, arch_swap)
 
@@ -51,7 +52,14 @@ SECTION_FUNC(exception.other, arch_swap)
 	PUSH_CONTEXT_TO_STACK(r16)
 	/* Stack the return address from user sub-routines */
 	PUSH_CONTEXT_TO_STACK(r15)
-	addik r14, r15, 4
+	/* The interrupts will always save the "next instruction to execute" to r14.
+	 * This isn't the same as r15 which is a link to the calling instruction.
+	 * Because there's a chance we may return from an ISR, we store r15+8 to r14,
+	 * so that r14 always has the next instruction to execute. And we make both
+	 * the swap and isr routines return to r14. Therefore, arch_swap should never
+	 * be called via an undelayed branch instruction!
+	 */
+	addik r14, r15, 8
 	/* Stack the return address from interrupt */
 	PUSH_CONTEXT_TO_STACK(r14)
 	PUSH_CONTEXT_TO_STACK(r13)
