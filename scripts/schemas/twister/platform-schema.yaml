@@ -68,6 +68,7 @@ schema;platform-schema:
           "sparc",
           "x86",
           "xtensa",
+          "microblaze",
 
           # unit testing
           "unit",
