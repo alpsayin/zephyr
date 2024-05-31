@@ -52,7 +52,17 @@
 #define NUM_REGS_PER_COUNTER	16
 #define COUNTER_REG_OFFSET(idx) (NUM_REGS_PER_COUNTER * idx)
 
-static uint32_t last_cycles;
+/*
+ * CYCLES_NEXT_MIN must be large enough to ensure that the timer does not miss
+ * interrupts.  This value was conservatively set, and there is room for improvement.
+ */
+#define CYCLES_NEXT_MIN		(TIMER_CYCLES_PER_SEC / 5000)
+/* We allow only half the maximum numerical range of the cycle counters so that we
+ * can never miss a sysclock overflow. This is also being very conservative.
+ */
+#define CYCLES_NEXT_MAX		(0xFFFFFFFFU / 2)
+
+static volatile uint32_t last_cycles;
 
 BUILD_ASSERT(TIMER_CYCLES_PER_SEC >= CONFIG_SYS_CLOCK_TICKS_PER_SEC,
 			 "Timer clock frequency must be greater than the system tick "
@@ -108,41 +118,93 @@ static void xlnx_tmrctr_clear_interrupt(void)
 		control_status_register | XTC_CSR_INT_OCCURRED_MASK, XTC_TCSR_OFFSET);
 }
 
+static inline void xlnx_tmrctr_set_reset_value(uint8_t counter_number, uint32_t reset_value)
+{
+	xlnx_tmrctr_write32(counter_number, reset_value, XTC_TLR_OFFSET);
+}
+
+static inline void xlnx_tmrctr_set_options(uint8_t counter_number, uint32_t options)
+{
+	xlnx_tmrctr_write32(counter_number, options, XTC_TCSR_OFFSET);
+}
+
+#ifdef CONFIG_TICKLESS_KERNEL
+static void xlnx_tmrctr_reload_tick_timer(uint32_t delta_cycles)
+{
+	uint32_t csr_val;
+	uint32_t cur_cycle_count = xlnx_tmrctr_read_count();
+
+	/* Ensure that the delta_cycles value meets the timing requirements */
+	if (delta_cycles < CYCLES_NEXT_MIN) {
+		/* Don't risk missing an interrupt */
+		delta_cycles = CYCLES_NEXT_MIN;
+	}
+	if ( delta_cycles > CYCLES_NEXT_MAX - cur_cycle_count) {
+		/* Don't risk missing a sysclock overflow */
+		delta_cycles = CYCLES_NEXT_MAX - cur_cycle_count;
+	}
+
+	/* Write counter load value for interrupt generation */
+	xlnx_tmrctr_set_reset_value(TICK_TIMER_COUNTER_NUMBER, delta_cycles);
+
+	/* Load the load value */
+	csr_val = xlnx_tmrctr_read32(TICK_TIMER_COUNTER_NUMBER, XTC_TCSR_OFFSET);
+	xlnx_tmrctr_write32(TICK_TIMER_COUNTER_NUMBER, csr_val | XTC_CSR_LOAD_MASK, XTC_TCSR_OFFSET);
+	xlnx_tmrctr_write32(TICK_TIMER_COUNTER_NUMBER, csr_val, XTC_TCSR_OFFSET);
+}
+#endif /* CONFIG_TICKLESS_KERNEL */
+
 static void xlnx_tmrctr_irq_handler(const void *unused)
 {
+	uint32_t cycles;
 	uint32_t delta_ticks;
 
 	ARG_UNUSED(unused);
 
-	uint32_t cycles = xlnx_tmrctr_read_hw_cycle_count();
+	cycles = xlnx_tmrctr_read_count();
+	/* Calculate the number of ticks since last announcement  */
+	delta_ticks = (cycles - last_cycles) / TIMER_CYCLES_PER_TICK;
+	/* Update last cycles count without the rounding error */
+	last_cycles += (delta_ticks * TIMER_CYCLES_PER_TICK);
 
-	delta_ticks = (cycles - last_cycles) / CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC;
-	if (delta_ticks == 0) {
-		/* This is an implicit TICKFUL mode implementation
-		 * We expect the cycle difference to be very low and
-		 * hence the delta_ticks to be 0, if IRQ fires on a timely basis.
-		 * But if an IRQ fire was missed due to some long running critical
-		 * section or TICKLESS mode, then delta should be large enough.
-		 */
-		delta_ticks = 1;
-	}
-	last_cycles = cycles;
-
+	/* Announce to the kernel*/
 	sys_clock_announce(delta_ticks);
 
 	xlnx_tmrctr_clear_interrupt();
 	xlnx_intc_irq_acknowledge(BIT(IRQ_TIMER));
 }
 
+void sys_clock_set_timeout(int32_t ticks, bool idle)
+{
+#ifdef CONFIG_TICKLESS_KERNEL
+	uint32_t cycles;
+	uint32_t delta_cycles;
+
+	/* Read counter value */
+	cycles = xlnx_tmrctr_read_count();
+
+	/* Calculate timeout counter value */
+	if (ticks == K_TICKS_FOREVER) {
+		delta_cycles = CYCLES_NEXT_MAX;
+	} else {
+		delta_cycles = ((uint32_t)ticks * TIMER_CYCLES_PER_TICK);
+	}
+
+	/* Set timer reload value for the next interrupt */
+	xlnx_tmrctr_reload_tick_timer(delta_cycles);
+#endif
+}
+
 uint32_t sys_clock_elapsed(void)
 {
-	/* This is an implicit TICKFUL mode implementation
-	 * We expect the cycle difference to be very low and
-	 * hence the delta_ticks to be 0, if IRQ fires on a timely basis.
-	 */
-	uint32_t cycles = xlnx_tmrctr_read_hw_cycle_count();
+#ifdef CONFIG_TICKLESS_KERNEL
+	uint32_t cycles = xlnx_tmrctr_read_count();
 
-	return (cycles - last_cycles) / CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC;
+	return (cycles - last_cycles) / TIMER_CYCLES_PER_TICK;
+#else
+	/* Always return 0 for tickful operation */
+	return 0;
+#endif
 }
 
 uint32_t sys_clock_cycle_get_32(void)
@@ -169,16 +231,6 @@ static int xlnx_tmrctr_initialize(void)
 	}
 
 	return 0;
-}
-
-static inline void xlnx_tmrctr_set_reset_value(uint8_t counter_number, uint32_t reset_value)
-{
-	xlnx_tmrctr_write32(counter_number, reset_value, XTC_TLR_OFFSET);
-}
-
-static inline void xlnx_tmrctr_set_options(uint8_t counter_number, uint32_t options)
-{
-	xlnx_tmrctr_write32(counter_number, options, XTC_TCSR_OFFSET);
 }
 
 static int xlnx_tmrctr_start(void)
@@ -214,11 +266,16 @@ static int sys_clock_driver_init(void)
 		return status;
 	}
 
-	xlnx_tmrctr_set_reset_value(TICK_TIMER_COUNTER_NUMBER, TICK_TIMER_TOP_VALUE);
-
+#if !defined(CONFIG_TICKLESS_KERNEL)
+	xlnx_tmrctr_set_reset_value(TICK_TIMER_COUNTER_NUMBER, CYCLES_NEXT_MAX);
+	xlnx_tmrctr_set_options(TICK_TIMER_COUNTER_NUMBER, XTC_CSR_ENABLE_INT_MASK |
+									 XTC_CSR_DOWN_COUNT_MASK);
+#else
+	xlnx_tmrctr_set_reset_value(TICK_TIMER_COUNTER_NUMBER, TIMER_CYCLES_PER_TICK);
 	xlnx_tmrctr_set_options(TICK_TIMER_COUNTER_NUMBER, XTC_CSR_ENABLE_INT_MASK |
 									 XTC_CSR_AUTO_RELOAD_MASK |
 									 XTC_CSR_DOWN_COUNT_MASK);
+#endif
 
 	xlnx_tmrctr_set_options(SYS_CLOCK_COUNTER_NUMBER, XTC_CSR_AUTO_RELOAD_MASK);
 
@@ -228,7 +285,7 @@ static int sys_clock_driver_init(void)
 		return status;
 	}
 
-	last_cycles = xlnx_tmrctr_read_hw_cycle_count();
+	last_cycles = xlnx_tmrctr_read_count();
 
 	IRQ_CONNECT(IRQ_TIMER, 0, xlnx_tmrctr_irq_handler, NULL, 0);
 	irq_enable(IRQ_TIMER);
