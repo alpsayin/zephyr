@@ -62,7 +62,7 @@ static void ALWAYS_INLINE arch_busy_wait_1ms(void)
 
 __weak void arch_busy_wait(uint32_t usec_to_wait)
 {
-	for (uint32_t msecs = 0; msecs < usec_to_wait / 1000; msecs++) {
+	for (uint32_t msecs = 0; msecs < usec_to_wait / USEC_PER_MSEC; msecs++) {
 		arch_busy_wait_1ms();
 	}
 }
