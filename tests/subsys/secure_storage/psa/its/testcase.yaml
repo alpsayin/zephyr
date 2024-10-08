@@ -5,6 +5,8 @@ common:
     - ophelia4ev/nrf54l15/cpuapp
   platform_exclude:
     - qemu_cortex_m0 # settings subsystem initialization fails
+  arch_exclude:
+    - microblaze # there is no fucking filter in here...
   timeout: 600
   tags:
     - psa.secure_storage
