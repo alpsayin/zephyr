@@ -45,3 +45,8 @@ FUNC_NORETURN void arch_thread_sleep_forever(void)
 	k_sleep(K_FOREVER);
 	CODE_UNREACHABLE;
 }
+
+int arch_coprocessors_disable(struct k_thread *thread)
+{
+	return -ENOTSUP;
+}
