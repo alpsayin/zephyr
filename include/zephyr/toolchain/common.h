@@ -76,7 +76,7 @@
 
   #if defined(CONFIG_X86) || defined(CONFIG_ARM) || defined(CONFIG_ARM64) || \
 	defined(CONFIG_RISCV) || defined(CONFIG_XTENSA) || defined(CONFIG_MIPS) || \
-	defined(CONFIG_ARCH_POSIX) || defined(CONFIG_RX)
+	defined(CONFIG_ARCH_POSIX) || defined(CONFIG_RX) || defined(CONFIG_MICROBLAZE)
     #define   ALIGN(x)    .balign   x
   #elif defined(CONFIG_ARC)
     /* .align assembler directive is supported by all ARC toolchains and it is
