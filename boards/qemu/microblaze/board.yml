@@ -1,5 +1,6 @@
 board:
   name: qemu_microblaze
-  vendor: xlnx
+  full_name: QEMU Emulation for Microblaze
+  vendor: qemu
   socs:
   - name: microblaze_demo
