@@ -6,13 +6,6 @@
 menu "HW Feature Options"
 	depends on MICROBLAZE
 
-# Picolibc with C++ support in Zephyr SDK is handled by Zephyr SDK's own Kconfig.
-config PICOLIBC_SUPPORTED
-	bool
-	default n
-	help
-		Microblaze doesn't have picolibc support yet
-
 config MICROBLAZE_USE_MSR_INSTR
 	prompt "Use msrset & msrclr instructions"
 	def_bool y
